@@ -149,7 +149,7 @@ export const Product = () => {
         <InfoContainer>
           <Title>{product.title}</Title>
           <Desc>{product.desc}</Desc>
-          <Price>Rs. {product.price * 10}</Price>
+          <Price>Rs. {product.price}</Price>
           <FilterContainer>
             <Filter>
               <FilterTitle>Color</FilterTitle>
