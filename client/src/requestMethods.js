@@ -1,10 +1,14 @@
 import axios from 'axios';
 
 const BASE_URL = '/api/';
+let liveUser;
 
-const liveUser = JSON.parse(
-  JSON.parse(localStorage.getItem('persist:root')).user
-).currentUser;
+const getPersistRoot = localStorage.getItem('persist:root');
+if (getPersistRoot !== null) {
+  liveUser = JSON.parse(
+    JSON.parse(localStorage.getItem('persist:root')).user
+  ).currentUser;
+}
 // const TOKEN = JSON.parse(JSON.parse(localStorage.getItem('persist:root')).user)
 //   .currentUser
 //   ? JSON.parse(JSON.parse(localStorage.getItem('persist:root')).user)
@@ -12,7 +16,7 @@ const liveUser = JSON.parse(
 //   : '';
 let TOKEN = '';
 console.log('ds', liveUser);
-if (liveUser !== null) {
+if (liveUser) {
   TOKEN = JSON.parse(JSON.parse(localStorage.getItem('persist:root')).user)
     .currentUser.accessToken;
 }
