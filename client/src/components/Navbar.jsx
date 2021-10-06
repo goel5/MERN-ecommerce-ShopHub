@@ -1,9 +1,11 @@
 import { Search, ShoppingCartOutlined } from '@mui/icons-material';
 import { Badge } from '@mui/material';
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { logout } from '../redux/apiCalls';
+import { clearCart } from '../redux/cartRedux';
 import { mobile } from '../responsive';
 const Container = styled.div`
   height: 60px;
@@ -55,7 +57,9 @@ const Right = styled.div`
   align-items: center;
   justify-content: flex-end;
   ${mobile({
-    justifyContent: 'center',
+    // justifyContent: 'center',
+    justifyContent: 'flex-end', //Comment out after including search bar
+    marginRight: '15px', //Comment out after including search bar
     flex: 2,
   })}
 `;
@@ -63,27 +67,52 @@ const MenuItem = styled.div`
   font-size: 14px;
   cursor: pointer;
   margin-left: 25px;
+  color: black;
   ${mobile({ fontSize: '12px', marginLeft: '10px' })}
 `;
 export const Navbar = () => {
   const quantity = useSelector((state) => state.cart.quantity);
   console.log(quantity);
+  const user = useSelector((state) => state.user.currentUser);
+  console.log(user);
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const logoutHandler = async () => {
+    logout(dispatch);
+    dispatch(clearCart());
+    history.push('/');
+  };
+  useEffect(() => {}, [history]);
   return (
     <Container>
       <Wrapper>
-        <Left>
+        {/* <Left>   //TODO implement search functionality
           <Language>EN</Language>
           <SearchContainer>
             <Input placeholder="Search" />
             <Search style={{ color: 'gray', fontSize: 16 }} />
           </SearchContainer>
-        </Left>
+        </Left> */}
         <Center>
-          <Logo>ShopHub</Logo>
+          <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>
+            <Logo>ShopHub</Logo>
+          </Link>
         </Center>
         <Right>
-          <MenuItem>REGISTER</MenuItem>
-          <MenuItem>SIGNIN</MenuItem>
+          {user ? (
+            <MenuItem>HI {user.username.toUpperCase()}</MenuItem>
+          ) : (
+            <Link to="/register" style={{ textDecoration: 'none' }}>
+              <MenuItem>REGISTER</MenuItem>
+            </Link>
+          )}
+          {user ? (
+            <MenuItem onClick={logoutHandler}>LOGOUT</MenuItem>
+          ) : (
+            <Link to="/login" style={{ textDecoration: 'none' }}>
+              <MenuItem>SIGNIN</MenuItem>
+            </Link>
+          )}
           <Link to="/cart">
             <MenuItem>
               <Badge badgeContent={quantity} color="primary">

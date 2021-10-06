@@ -8,7 +8,7 @@ import { mobile } from '../responsive';
 import { useSelector } from 'react-redux';
 import StripeCheckout from 'react-stripe-checkout';
 import { userRequest } from '../requestMethods';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 const KEY = process.env.REACT_APP_STRIPE;
 const Container = styled.div``;
 const Wrapper = styled.div`
@@ -149,6 +149,7 @@ export const Cart = () => {
     };
     stripeToken && makeRequest();
   }, [stripeToken, cart.total, history]);
+  console.log(cart.products.length);
   return (
     <Container>
       <Navbar />
@@ -156,70 +157,14 @@ export const Cart = () => {
       <Wrapper>
         <Title>YOUR BAG</Title>
         <Top>
-          <TopButton>CONTINUE SHOPPING</TopButton>
+          <TopButton onClick={() => history.push('/')}>
+            CONTINUE SHOPPING
+          </TopButton>
           <TopTexts>
-            <TopText>Shopping Bag(2)</TopText>
+            <TopText>Shopping Bag({cart.products.length})</TopText>
             <TopText>Your Wishlist(0)</TopText>
           </TopTexts>
-          <TopButton type="filled">CHECKOUT NOW</TopButton>
-        </Top>
-        <Bottom>
-          <Info>
-            {cart.products.map((product) => (
-              <Product>
-                <ProductDetail>
-                  <Image src={product.img} />
-                  <Details>
-                    <ProductName>
-                      <b>Product:</b> {product.title}
-                    </ProductName>
-                    <ProductId>
-                      <b>ID:</b>
-                      {product._id}
-                    </ProductId>
-                    <ProductColor color={product.color} />
-                    <ProductSize>
-                      <b>Size:</b>
-                      {product.size}
-                    </ProductSize>
-                  </Details>
-                </ProductDetail>
-                <PriceDetail>
-                  <ProductAmountContainer>
-                    <Add />
-                    <ProductAmount>{product.quantity}</ProductAmount>
-                    <Remove />
-                  </ProductAmountContainer>
-                  <ProductPrice>
-                    Rs. {product.price * product.quantity}
-                  </ProductPrice>
-                </PriceDetail>
-              </Product>
-            ))}
-            <Hr />
-          </Info>
-          <Summary>
-            <SummaryTitle>ORDER SUMMARY</SummaryTitle>
-            <SummaryItem>
-              <SummaryItemText>Subtotal</SummaryItemText>
-              <SummaryItemPrice>Rs. {cart.total}</SummaryItemPrice>
-            </SummaryItem>
-            <SummaryItem>
-              <SummaryItemText>Estimated Shipping</SummaryItemText>
-              <SummaryItemPrice>Rs. 59</SummaryItemPrice>
-            </SummaryItem>
-            <SummaryItem>
-              <SummaryItemText>Shipping Discount</SummaryItemText>
-              <SummaryItemPrice>
-                Rs. {cart.total > 500 ? -59 : 0}
-              </SummaryItemPrice>
-            </SummaryItem>
-            <SummaryItem type="total">
-              <SummaryItemText>Total</SummaryItemText>
-              <SummaryItemPrice>
-                Rs. {cart.total > 500 ? cart.total : cart.total + 59}
-              </SummaryItemPrice>
-            </SummaryItem>
+          {cart.products.length > 0 && (
             <StripeCheckout
               name="ShopHub"
               image="https://i.ytimg.com/vi/sFL1-zFSeHE/maxresdefault.jpg"
@@ -232,10 +177,85 @@ export const Cart = () => {
               token={onToken}
               stripeKey={KEY}
             >
-              <Button>CHECKOUT NOW</Button>
+              <TopButton type="filled">CHECKOUT NOW</TopButton>
             </StripeCheckout>
-          </Summary>
-        </Bottom>
+          )}
+        </Top>
+        {cart.products.length > 0 && (
+          <Bottom>
+            <Info>
+              {cart.products.map((product) => (
+                <Product>
+                  <ProductDetail>
+                    <Image src={product.img} />
+                    <Details>
+                      <ProductName>
+                        <b>Product:</b> {product.title}
+                      </ProductName>
+                      <ProductId>
+                        <b>ID:</b>
+                        {product._id}
+                      </ProductId>
+                      <ProductColor color={product.color} />
+                      <ProductSize>
+                        <b>Size:</b>
+                        {product.size}
+                      </ProductSize>
+                    </Details>
+                  </ProductDetail>
+                  <PriceDetail>
+                    <ProductAmountContainer>
+                      <Add />
+                      <ProductAmount>{product.quantity}</ProductAmount>
+                      <Remove />
+                    </ProductAmountContainer>
+                    <ProductPrice>
+                      Rs. {product.price * product.quantity}
+                    </ProductPrice>
+                  </PriceDetail>
+                </Product>
+              ))}
+              <Hr />
+            </Info>
+            <Summary>
+              <SummaryTitle>ORDER SUMMARY</SummaryTitle>
+              <SummaryItem>
+                <SummaryItemText>Subtotal</SummaryItemText>
+                <SummaryItemPrice>Rs. {cart.total}</SummaryItemPrice>
+              </SummaryItem>
+              <SummaryItem>
+                <SummaryItemText>Estimated Shipping</SummaryItemText>
+                <SummaryItemPrice>Rs. 59</SummaryItemPrice>
+              </SummaryItem>
+              <SummaryItem>
+                <SummaryItemText>Shipping Discount</SummaryItemText>
+                <SummaryItemPrice>
+                  Rs. {cart.total > 500 ? -59 : 0}
+                </SummaryItemPrice>
+              </SummaryItem>
+              <SummaryItem type="total">
+                <SummaryItemText>Total</SummaryItemText>
+                <SummaryItemPrice>
+                  Rs. {cart.total > 500 ? cart.total : cart.total + 59}
+                </SummaryItemPrice>
+              </SummaryItem>
+              <StripeCheckout
+                name="ShopHub"
+                image="https://i.ytimg.com/vi/sFL1-zFSeHE/maxresdefault.jpg"
+                billingAddress
+                shippingAddress
+                description={`Your total is Rs.${
+                  cart.total > 500 ? cart.total : cart.total + 59
+                }`}
+                amount={cart.total > 500 ? cart.total : cart.total + 59}
+                token={onToken}
+                stripeKey={KEY}
+              >
+                <Button>CHECKOUT NOW</Button>
+              </StripeCheckout>
+            </Summary>
+          </Bottom>
+        )}
       </Wrapper>
       <Footer />
     </Container>

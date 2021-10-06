@@ -9,6 +9,8 @@ import {
 } from '@mui/icons-material';
 import styled from 'styled-components';
 import { mobile } from '../responsive';
+import { Link, useHistory } from 'react-router-dom';
+
 const Container = styled.div`
   display: flex;
   ${mobile({ flexDirection: 'column' })}
@@ -55,6 +57,7 @@ const List = styled.ul`
 const ListItem = styled.li`
   width: 50%;
   margin-bottom: 10px;
+  cursor: pointer;
 `;
 const Right = styled.div`
   flex: 1;
@@ -97,10 +100,34 @@ export const Footer = () => {
       <Center>
         <Title>Useful Links</Title>
         <List>
-          <ListItem>Home</ListItem>
-          <ListItem>Cart</ListItem>
-          <ListItem>Man Fashion</ListItem>
-          <ListItem>Woman Fashion</ListItem>
+          <ListItem>
+            <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>
+              Home
+            </Link>
+          </ListItem>
+
+          <ListItem>
+            <Link to="/cart" style={{ textDecoration: 'none', color: 'black' }}>
+              Cart
+            </Link>
+          </ListItem>
+          <ListItem>
+            <Link
+              to="/products/man"
+              style={{ textDecoration: 'none', color: 'black' }}
+            >
+              Man Fashion
+            </Link>
+          </ListItem>
+          <ListItem>
+            <Link
+              to="/products/women"
+              style={{ textDecoration: 'none', color: 'black' }}
+            >
+              Woman Fashion
+            </Link>
+          </ListItem>
+
           <ListItem>Accessories</ListItem>
           <ListItem>My Account</ListItem>
           <ListItem>Order Tracking</ListItem>
@@ -112,7 +139,7 @@ export const Footer = () => {
         <Title>Contact</Title>
         <ContactItem>
           <Room style={{ marginRight: 10 }} />
-          Sectorxx63, 2nd floor Eifel tower Gurugram, Haryana
+          Sectorxx63, Hathras-204101, UP
         </ContactItem>
         <ContactItem>
           <Phone style={{ marginRight: 10 }} />
@@ -120,7 +147,7 @@ export const Footer = () => {
         </ContactItem>
         <ContactItem>
           <MailOutline style={{ marginRight: 10 }} />
-          conatact@shophub.com
+          conatactsajal@shophub.com
         </ContactItem>
         <Payment src="https://i.ibb.co/Qfvn4z6/payment.png" />
       </Right>

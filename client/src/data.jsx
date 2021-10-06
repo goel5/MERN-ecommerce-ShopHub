@@ -1,7 +1,7 @@
 export const sliderItems = [
   {
     id: 1,
-    img: 'https://i.ibb.co/XsdmR2c/1.png',
+    img: 'https://media.istockphoto.com/photos/women-are-shopping-in-the-summer-she-is-using-a-credit-card-and-picture-id921504204?k=20&m=921504204&s=612x612&w=0&h=xURMNuCE3EjAr69RzDEHW3Ss9rw9dgGRrLsjUfZdGCU=',
     title: 'SUMMER SALE',
     desc: "DON'T COMPROMISE ON STYLE! GET FLAT 30% OFF FOR NEW ARRIVALS.",
     bg: 'f5fafd',

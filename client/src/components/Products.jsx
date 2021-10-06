@@ -19,6 +19,7 @@ export const Products = ({ cat, filters, sort }) => {
         const res = await axios.get(
           cat ? `/api/products?category=${cat}` : `/api/products`
         );
+        // console.log(res);
         setproducts(res.data);
       } catch (err) {}
     };
