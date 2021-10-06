@@ -3,6 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { login } from '../redux/apiCalls';
 import { mobile } from '../responsive';
+import { Link } from 'react-router-dom';
+import { Footer } from '../components/Footer';
+import { Navbar } from '../components/Navbar';
+
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
@@ -14,13 +18,15 @@ const Container = styled.div`
       center;
   background-size: cover;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  /* align-items: center; */
+  justify-content: space-between;
+  flex-direction: column;
 `;
 const Wrapper = styled.div`
   width: 25%;
   padding: 20px;
   background-color: white;
+  align-self: center;
   ${mobile({ width: '75%' })}
 `;
 const Form = styled.form`
@@ -49,7 +55,7 @@ const Button = styled.button`
     cursor: not-allowed;
   }
 `;
-const Link = styled.a`
+const Redirect = styled.div`
   margin: 5px 0px;
   font-size: 12px;
   text-decoration: underline;
@@ -70,6 +76,7 @@ export const Login = () => {
 
   return (
     <Container>
+      <Navbar />
       <Wrapper>
         <Title>SIGN IN</Title>
         <Form>
@@ -86,10 +93,15 @@ export const Login = () => {
             LOGIN
           </Button>
           {error && <Error>Something went wrong ...</Error>}
-          <Link>FORGOT PASSWORD?</Link>
-          <Link>CREATE A NEW ACCOUNT</Link>
+          <Redirect>FORGOT PASSWORD?</Redirect>
+          <Redirect>
+            <Link to="/register" style={{ color: 'black' }}>
+              CREATE A NEW ACCOUNT
+            </Link>
+          </Redirect>
         </Form>
       </Wrapper>
+      <Footer />
     </Container>
   );
 };

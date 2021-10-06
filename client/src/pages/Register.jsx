@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { Footer } from '../components/Footer';
+import { Navbar } from '../components/Navbar';
 import { mobile } from '../responsive';
 const Container = styled.div`
   width: 100vw;
@@ -11,13 +13,15 @@ const Container = styled.div`
       center;
   display: flex;
   background-size: cover;
-  align-items: center;
-  justify-content: center;
+  /* align-items: center; */
+  justify-content: space-between;
+  flex-direction: column;
 `;
 const Wrapper = styled.div`
   width: 40%;
   padding: 20px;
   background-color: white;
+  align-self: center;
   ${mobile({ width: '75%' })}
 `;
 const Form = styled.form`
@@ -49,6 +53,7 @@ const Button = styled.button`
 export const Register = () => {
   return (
     <Container>
+      <Navbar />
       <Wrapper>
         <Title>CREATE AN ACCOUNT</Title>
         <Form>
@@ -65,6 +70,7 @@ export const Register = () => {
           <Button>CREATE</Button>
         </Form>
       </Wrapper>
+      <Footer />
     </Container>
   );
 };
