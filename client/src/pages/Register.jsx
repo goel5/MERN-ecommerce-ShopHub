@@ -2,6 +2,12 @@ import styled from 'styled-components';
 import { Footer } from '../components/Footer';
 import { Navbar } from '../components/Navbar';
 import { mobile } from '../responsive';
+import axios from 'axios';
+import { useState } from 'react';
+import { login } from '../redux/apiCalls';
+import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
@@ -51,6 +57,34 @@ const Button = styled.button`
   cursor: pointer;
 `;
 export const Register = () => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
+  const history = useHistory;
+  const handleClick = async (e) => {
+    e.preventDefault();
+    const config = {
+      header: {
+        'Content-Type': 'application/json',
+      },
+    };
+    try {
+      const data = await axios.post(
+        `/api/auth/register`,
+        {
+          username,
+          email,
+          password,
+        },
+        config
+      );
+      console.log(data);
+      await login(dispatch, { username, password });
+      history.push('/');
+    } catch (err) {}
+    // login(dispatch, { username, password });
+  };
   return (
     <Container>
       <Navbar />
@@ -59,15 +93,24 @@ export const Register = () => {
         <Form>
           <Input placeholder="name" />
           <Input placeholder="last name" />
-          <Input placeholder="username" />
-          <Input placeholder="email" />
-          <Input placeholder="password" />
+          <Input
+            placeholder="username"
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <Input
+            placeholder="email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            placeholder="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
           <Input placeholder="confirm password" />
           <Agreement>
             By creating an account, I consent to the processing of my personal
             data in accordance with the <b>PRIVACY POLICY</b>
           </Agreement>
-          <Button>CREATE</Button>
+          <Button onClick={handleClick}>CREATE</Button>
         </Form>
       </Wrapper>
       <Footer />

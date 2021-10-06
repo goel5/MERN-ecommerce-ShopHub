@@ -10,7 +10,9 @@ import StripeCheckout from 'react-stripe-checkout';
 import { userRequest } from '../requestMethods';
 import { Link, useHistory } from 'react-router-dom';
 const KEY = process.env.REACT_APP_STRIPE;
-const Container = styled.div``;
+const Container = styled.div`
+  ${mobile({ width: '100vw', overflowX: 'hidden' })}
+`;
 const Wrapper = styled.div`
   padding: 20px;
   ${mobile({ padding: '10px' })}
@@ -201,14 +203,18 @@ export const Cart = () => {
                         <b>Size:</b>
                         {product.size}
                       </ProductSize>
+                      <ProductSize>
+                        <b>Quantity:</b>
+                        {product.quantity}
+                      </ProductSize>
                     </Details>
                   </ProductDetail>
                   <PriceDetail>
-                    <ProductAmountContainer>
+                    {/* <ProductAmountContainer>
                       <Add />
                       <ProductAmount>{product.quantity}</ProductAmount>
                       <Remove />
-                    </ProductAmountContainer>
+                    </ProductAmountContainer> */}
                     <ProductPrice>
                       Rs. {product.price * product.quantity}
                     </ProductPrice>
