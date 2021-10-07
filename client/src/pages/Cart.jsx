@@ -5,10 +5,11 @@ import { Navbar } from '../components/Navbar';
 import styled from 'styled-components';
 import { Add, Remove } from '@mui/icons-material';
 import { mobile } from '../responsive';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import StripeCheckout from 'react-stripe-checkout';
 import { userRequest } from '../requestMethods';
 import { Link, useHistory } from 'react-router-dom';
+import { removeProduct, updateProduct } from '../redux/cartRedux';
 const KEY = process.env.REACT_APP_STRIPE;
 const Container = styled.div`
   ${mobile({ width: '100vw', overflowX: 'hidden' })}
@@ -60,15 +61,49 @@ const Product = styled.div`
 const ProductDetail = styled.div`
   flex: 2;
   display: flex;
+  justify-content: space-around;
 `;
 const Image = styled.img`
   width: 200px;
+  /* ${mobile({ width: '150px' })} */
 `;
 const Details = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+`;
+const UpdateDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  ${mobile({ display: 'none' })}
+`;
+const UpdateDetailsMobile = styled.div`
+  display: none;
+  justify-content: space-around;
+  align-items: center;
+  ${mobile({ display: 'flex' })}
+`;
+const DeleteButton = styled.button`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+  color: black;
+  padding: 2px 5px;
+  font-size: 15px;
+  background-color: white;
+  cursor: pointer;
+  &:active {
+    background-color: red;
+    color: white;
+    border: 1px solid red;
+  }
+  ${mobile({ margin: '0' })}
 `;
 const ProductName = styled.span``;
 const ProductId = styled.span``;
@@ -90,6 +125,12 @@ const ProductAmountContainer = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 2px 5px;
+  font-size: 15px;
+  ${mobile({ margin: '0' })}
 `;
 const ProductAmount = styled.div`
   font-size: 24px;
@@ -97,9 +138,9 @@ const ProductAmount = styled.div`
   ${mobile({ margin: ' 5px 15px' })}
 `;
 const ProductPrice = styled.div`
-  font-size: 30px;
-  font-weight: 200;
-  ${mobile({ marginBottom: '20px' })}
+  font-size: 25px;
+  font-weight: 600;
+  ${mobile({ marginBottom: '20px', fontSize: '20px' })}
 `;
 const Hr = styled.hr`
   background-color: #eee;
@@ -136,6 +177,8 @@ export const Cart = () => {
   const cart = useSelector((state) => state.cart);
   const [stripeToken, setStripeToken] = useState(null);
   const history = useHistory();
+  const dispatch = useDispatch();
+
   const onToken = (token) => {
     setStripeToken(token);
   };
@@ -150,14 +193,28 @@ export const Cart = () => {
       } catch {}
     };
     stripeToken && makeRequest();
-  }, [stripeToken, cart.total, history]);
-  console.log(cart.products.length);
+  }, [stripeToken, cart.total, history, dispatch]);
+  console.log(cart);
+
+  const removeItem = async (product) => {
+    await dispatch(removeProduct({ ...product }));
+  };
+  const handleQuantity = async (product, operation) => {
+    if (operation === 'dec') {
+      product.quantity > 1 &&
+        (await dispatch(updateProduct({ ...product, operation })));
+    } else {
+      await dispatch(updateProduct({ ...product, operation }));
+    }
+  };
   return (
     <Container>
       <Navbar />
       <Announcement />
       <Wrapper>
-        <Title>YOUR BAG</Title>
+        <Title>
+          {cart.products.length === 0 ? 'YOUR CART IS EMPTY' : 'YOUR BAG'}
+        </Title>
         <Top>
           <TopButton onClick={() => history.push('/')}>
             CONTINUE SHOPPING
@@ -187,41 +244,63 @@ export const Cart = () => {
           <Bottom>
             <Info>
               {cart.products.map((product) => (
-                <Product>
-                  <ProductDetail>
-                    <Image src={product.img} />
-                    <Details>
-                      <ProductName>
-                        <b>Product:</b> {product.title}
-                      </ProductName>
-                      <ProductId>
-                        <b>ID:</b>
-                        {product._id}
-                      </ProductId>
-                      <ProductColor color={product.color} />
-                      <ProductSize>
-                        <b>Size:</b>
-                        {product.size}
-                      </ProductSize>
-                      <ProductSize>
-                        <b>Quantity:</b>
-                        {product.quantity}
-                      </ProductSize>
-                    </Details>
-                  </ProductDetail>
-                  <PriceDetail>
-                    {/* <ProductAmountContainer>
-                      <Add />
-                      <ProductAmount>{product.quantity}</ProductAmount>
-                      <Remove />
-                    </ProductAmountContainer> */}
+                <>
+                  <Product>
+                    <ProductDetail>
+                      <Image src={product.img} />
+                      <Details>
+                        <ProductName>{product.title}</ProductName>
+                        <ProductPrice>
+                          Rs. {product.price * product.quantity}
+                        </ProductPrice>
+                        {/* <ProductId>
+                          <b>ID:</b>
+                          {product._id}
+                        </ProductId> */}
+                        <ProductColor color={product.color} />
+                        <ProductSize>
+                          <b>Size: </b>
+                          {product.size}
+                        </ProductSize>
+                      </Details>
+                      <UpdateDetails>
+                        <ProductAmountContainer>
+                          <Add onClick={() => handleQuantity(product, 'inc')} />
+                          <ProductAmount>{product.quantity}</ProductAmount>
+                          <Remove
+                            onClick={() => handleQuantity(product, 'dec')}
+                          />
+                        </ProductAmountContainer>
+                        <DeleteButton onClick={() => removeItem(product)}>
+                          Remove
+                        </DeleteButton>
+                      </UpdateDetails>
+                    </ProductDetail>
+                    {/* <PriceDetail>
                     <ProductPrice>
                       Rs. {product.price * product.quantity}
                     </ProductPrice>
-                  </PriceDetail>
-                </Product>
+                    <ProductAmountContainer>
+                      Remove
+                      <Add />
+                      <ProductAmount>{product.quantity}</ProductAmount>
+                      <Remove />
+                    </ProductAmountContainer>
+                  </PriceDetail> */}
+                  </Product>
+                  <UpdateDetailsMobile>
+                    <ProductAmountContainer>
+                      <Add onClick={() => handleQuantity(product, 'inc')} />
+                      <ProductAmount>{product.quantity}</ProductAmount>
+                      <Remove onClick={() => handleQuantity(product, 'dec')} />
+                    </ProductAmountContainer>
+                    <DeleteButton onClick={() => removeItem(product)}>
+                      Remove
+                    </DeleteButton>
+                  </UpdateDetailsMobile>
+                  <Hr />
+                </>
               ))}
-              <Hr />
             </Info>
             <Summary>
               <SummaryTitle>ORDER SUMMARY</SummaryTitle>

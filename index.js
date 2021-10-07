@@ -42,8 +42,8 @@ if (process.env.NODE_ENV === 'production') {
     res.send('Api running');
   });
 }
-
+const PORT = process.env.PORT || 5000;
 //Run App
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`Backend server is running at port ${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Backend server is running at port ${PORT}`);
 });

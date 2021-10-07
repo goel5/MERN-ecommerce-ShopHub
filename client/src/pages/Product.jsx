@@ -1,7 +1,7 @@
 import { Add, Remove } from '@mui/icons-material';
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Announcement } from '../components/Announcement';
 import { Footer } from '../components/Footer';
@@ -93,14 +93,19 @@ const Amount = styled.span`
   margin: 0 5px;
 `;
 const Button = styled.button`
-  padding: 15px;
+  padding-block: 10px;
   border: 2px solid teal;
   background-color: white;
   cursor: pointer;
-  font-weight: 500;
-
+  font-weight: 600;
+  font-size: 20px;
+  width: 100%;
   &:hover {
     background-color: #f8f4f4;
+  }
+  &:active {
+    background-color: teal;
+    color: white;
   }
 `;
 
@@ -111,9 +116,15 @@ export const Product = () => {
   const [quantity, setQuantity] = useState(1);
   const [color, setColor] = useState('');
   const [size, setSize] = useState('');
+  const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
-
+  const history = useHistory();
   useEffect(() => {
+    console.log(
+      'mila',
+      cart.products.find((p) => p._id === id)
+    );
+    // if(cart.products.find((p) => p._id === id))
     const getProduct = async () => {
       try {
         const res = await publicRequest.get(`/products/find/${id}`);
@@ -125,18 +136,20 @@ export const Product = () => {
     };
     getProduct();
   }, [id]);
-  // console.log('df', size, color);
-  // product.color && setColor(product.color[0]);
-
-  const handleQuantity = (type) => {
-    if (type === 'dec') {
-      quantity > 1 && setQuantity(quantity - 1);
-    } else {
-      setQuantity(quantity + 1);
-    }
-  };
+  // console.log(cart);
+  // const handleQuantity = (type) => {
+  //   if (type === 'dec') {
+  //     quantity > 1 && setQuantity(quantity - 1);
+  //   } else {
+  //     setQuantity(quantity + 1);
+  //   }
+  // };
   const handleClick = () => {
-    dispatch(addProduct({ ...product, quantity, color, size }));
+    if (cart.products.find((p) => p._id === id)) {
+      history.push('/cart');
+    } else {
+      dispatch(addProduct({ ...product, quantity, color, size }));
+    }
   };
   return (
     <Container>
@@ -167,12 +180,16 @@ export const Product = () => {
             </Filter>
           </FilterContainer>
           <AddContainer>
-            <AmountContainer>
+            {/* <AmountContainer>
               <Remove onClick={() => handleQuantity('dec')} />
               <Amount>{quantity}</Amount>
               <Add onClick={() => handleQuantity('inc')} />
-            </AmountContainer>
-            <Button onClick={handleClick}>ADD TO CART</Button>
+            </AmountContainer> */}
+            <Button onClick={() => handleClick()}>
+              {cart.products.find((p) => p._id === id)
+                ? 'GO TO CART'
+                : 'ADD TO CART'}
+            </Button>
           </AddContainer>
         </InfoContainer>
       </Wrapper>
