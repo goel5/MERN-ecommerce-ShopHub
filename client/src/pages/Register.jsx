@@ -57,12 +57,12 @@ const Button = styled.button`
   cursor: pointer;
 `;
 export const Register = () => {
-  const [username, setUsername] = useState('test1');
-  const [email, setEmail] = useState('fvag@gmail.com');
-  const [password, setPassword] = useState('123456');
-  // const [username, setUsername] = useState('');
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
+  // const [username, setUsername] = useState('test1');
+  // const [email, setEmail] = useState('fvag@gmail.com');
+  // const [password, setPassword] = useState('123456');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const history = useHistory;
   const handleClick = async (e) => {
