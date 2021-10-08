@@ -7,9 +7,11 @@ import { Add, Remove } from '@mui/icons-material';
 import { mobile } from '../responsive';
 import { useDispatch, useSelector } from 'react-redux';
 import StripeCheckout from 'react-stripe-checkout';
-import { userRequest } from '../requestMethods';
-import { Link, useHistory } from 'react-router-dom';
-import { removeProduct, updateProduct } from '../redux/cartRedux';
+import { useHistory } from 'react-router-dom';
+import { clearCart, removeProduct, updateProduct } from '../redux/cartRedux';
+import axios from 'axios';
+import { createOrder, emptyCart, setUserCart } from '../setters';
+import { addOrder } from '../redux/orderRedux';
 const KEY = process.env.REACT_APP_STRIPE;
 const Container = styled.div`
   ${mobile({ width: '100vw', overflowX: 'hidden' })}
@@ -175,36 +177,101 @@ const Button = styled.button`
 `;
 export const Cart = () => {
   const cart = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.user);
   const [stripeToken, setStripeToken] = useState(null);
   const history = useHistory();
   const dispatch = useDispatch();
-
   const onToken = (token) => {
     setStripeToken(token);
   };
   useEffect(() => {
+    // const getUserCart = async () => {
+    //   const cart = await axios.get(`/api/carts/find/${user.currentUser._id}`, {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       token: `Bearer ${user.currentUser.accessToken}`,
+    //     },
+    //   });
+    //   dispatch(updateCart(cart.data));
+    // };
+    // user.currentUser && getUserCart();
     const makeRequest = async () => {
       try {
-        const res = await userRequest.post('/checkout/payment', {
-          tokenId: stripeToken.id,
-          amount: cart.total * 100,
-        });
-        history.push('/success', { data: res.data });
+        const res = await axios.post(
+          '/api/checkout/payment',
+          {
+            tokenId: stripeToken.id,
+            amount: cart.total * 100,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              token: `Bearer ${user.currentUser.accessToken}`,
+            },
+          }
+        );
+        // const order = {
+        //   userId:user.currentUser._id,
+        //   products:cart.products.map((item)=>)
+        // }
+        const order = await createOrder(
+          user.currentUser._id,
+          cart,
+          user.currentUser.accessToken
+        );
+        history.push('/orders', { data: res.data });
+        await dispatch(addOrder({ order }));
+
+        await dispatch(clearCart());
+        await emptyCart(user.currentUser._id, user.currentUser.accessToken);
       } catch {}
     };
     stripeToken && makeRequest();
-  }, [stripeToken, cart.total, history, dispatch]);
+  }, [stripeToken, cart.total, history]);
   console.log(cart);
 
   const removeItem = async (product) => {
+    user.currentUser &&
+      setUserCart(
+        user.currentUser._id,
+        cart.products.filter((p) => p._id !== product._id),
+        user.currentUser.accessToken
+      );
     await dispatch(removeProduct({ ...product }));
   };
   const handleQuantity = async (product, operation) => {
+    const price = product.price;
+    const productId = product._id;
+    const userId = user.currentUser && user.currentUser._id;
+    const token = user.currentUser && user.currentUser.accessToken;
     if (operation === 'dec') {
-      product.quantity > 1 &&
-        (await dispatch(updateProduct({ ...product, operation })));
+      if (product.quantity > 1) {
+        let decProduct = cart.products.map((p) =>
+          p._id === product._id ? { ...p, quantity: p.quantity - 1 } : p
+        );
+        user.currentUser &&
+          setUserCart(
+            user.currentUser._id,
+            decProduct,
+            user.currentUser.accessToken
+          );
+        await dispatch(
+          updateProduct({ price, productId, userId, operation, token })
+        );
+      }
     } else {
-      await dispatch(updateProduct({ ...product, operation }));
+      let incProduct = cart.products.map((p) =>
+        p._id === product._id ? { ...p, quantity: p.quantity + 1 } : p
+      );
+      user.currentUser &&
+        setUserCart(
+          user.currentUser._id,
+          incProduct,
+          user.currentUser.accessToken
+        );
+      await dispatch(
+        updateProduct({ price, productId, userId, operation, token })
+      );
     }
   };
   return (
@@ -232,9 +299,12 @@ export const Cart = () => {
               description={`Your total is Rs.${
                 cart.total > 500 ? cart.total : cart.total + 59
               }`}
-              amount={cart.total > 500 ? cart.total : cart.total + 59}
+              amount={
+                cart.total > 500 ? cart.total * 100 : (cart.total + 59) * 100
+              }
               token={onToken}
               stripeKey={KEY}
+              currency="INR"
             >
               <TopButton type="filled">CHECKOUT NOW</TopButton>
             </StripeCheckout>
@@ -332,9 +402,12 @@ export const Cart = () => {
                 description={`Your total is Rs.${
                   cart.total > 500 ? cart.total : cart.total + 59
                 }`}
-                amount={cart.total > 500 ? cart.total : cart.total + 59}
+                amount={
+                  cart.total > 500 ? cart.total * 100 : (cart.total + 59) * 100
+                }
                 token={onToken}
                 stripeKey={KEY}
+                currency="INR"
               >
                 <Button>CHECKOUT NOW</Button>
               </StripeCheckout>

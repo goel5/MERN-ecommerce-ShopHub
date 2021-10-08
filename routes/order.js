@@ -9,7 +9,7 @@ const {
 const router = require('express').Router();
 
 //Create
-router.post('/', verifyToken, async (req, res) => {
+router.post('/:id', verifyTokenAndAuthorization, async (req, res) => {
   const newOrder = new Order(req.body);
   try {
     const savedOrder = await newOrder.save();
@@ -44,10 +44,17 @@ router.delete('/:id', verifyTokenAndAdmin, async (req, res) => {
 });
 
 //GET User Orders
-router.get('/find/:userid', verifyTokenAndAuthorization, async (req, res) => {
+router.get('/find/:id', verifyTokenAndAuthorization, async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.params.userid });
-    res.status(200).json(orders);
+    const orders = await Order.find({ userId: req.params.id }).sort({
+      createdAt: -1,
+    });
+    let products = [];
+    for await (const order of orders) {
+      products = products.concat(order.products);
+    }
+    let data = {};
+    res.status(200).json(products);
   } catch (err) {
     res.status(500).json(err);
   }

@@ -7,8 +7,13 @@ const verifyToken = (req, res, next) => {
     jwt.verify(token, process.env.JWT_SEC, (err, user) => {
       // user:{id, isAdmin} from token
       //return either err or user
-      if (err) res.status(401).json('Token is not valid!');
+      console.log('authHeader', authHeader);
+      if (err) {
+        console.log(err);
+        return res.status(401).json('Token is not valid!');
+      }
       req.user = user; // We earlier had req.body and req.header only and now we created a new req.user so total 3 key-value pairs
+      // console.log(user);
       next();
     });
   } else {

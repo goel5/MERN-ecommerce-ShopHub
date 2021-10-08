@@ -1,5 +1,5 @@
-import { Add, Remove } from '@mui/icons-material';
-import { useEffect, useLayoutEffect, useState } from 'react';
+// import { Add, Remove } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -10,6 +10,7 @@ import { Newsletter } from '../components/Newsletter';
 import { addProduct } from '../redux/cartRedux';
 import { publicRequest } from '../requestMethods';
 import { mobile } from '../responsive';
+import { addToCart } from '../setters';
 
 const Container = styled.div``;
 const Wrapper = styled.div`
@@ -62,7 +63,9 @@ const FilterColor = styled.div`
   height: 20px;
   border-radius: 50%;
   background-color: ${(props) => props.color};
+  border: ${(props) => (props.active ? `2px solid black` : null)};
   margin: 0 5px;
+  padding: 2px;
   cursor: pointer;
 `;
 const FilterSize = styled.select`
@@ -77,21 +80,21 @@ const AddContainer = styled.div`
   justify-content: space-between;
   ${mobile({ width: '100%' })}
 `;
-const AmountContainer = styled.div`
-  display: flex;
-  align-items: center;
-  font-weight: 700;
-`;
-const Amount = styled.span`
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  border: 1px solid teal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 5px;
-`;
+// const AmountContainer = styled.div`
+//   display: flex;
+//   align-items: center;
+//   font-weight: 700;
+// `;
+// const Amount = styled.span`
+//   width: 30px;
+//   height: 30px;
+//   border-radius: 10px;
+//   border: 1px solid teal;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   margin: 0 5px;
+// `;
 const Button = styled.button`
   padding-block: 10px;
   border: 2px solid teal;
@@ -113,41 +116,37 @@ export const Product = () => {
   const location = useLocation();
   const id = location.pathname.split('/')[2];
   const [product, setProduct] = useState({});
-  const [quantity, setQuantity] = useState(1);
   const [color, setColor] = useState('');
   const [size, setSize] = useState('');
   const cart = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const history = useHistory();
+  const quantity = 1;
   useEffect(() => {
-    console.log(
-      'mila',
-      cart.products.find((p) => p._id === id)
-    );
-    // if(cart.products.find((p) => p._id === id))
     const getProduct = async () => {
       try {
         const res = await publicRequest.get(`/products/find/${id}`);
         await setProduct(res.data);
         color === '' && (await setColor(res.data.color[0]));
         size === '' && (await setSize(res.data.size[0]));
-        // console.log(product.color, product.size, size, color);
       } catch {}
     };
     getProduct();
   }, [id]);
-  // console.log(cart);
-  // const handleQuantity = (type) => {
-  //   if (type === 'dec') {
-  //     quantity > 1 && setQuantity(quantity - 1);
-  //   } else {
-  //     setQuantity(quantity + 1);
-  //   }
-  // };
   const handleClick = () => {
     if (cart.products.find((p) => p._id === id)) {
       history.push('/cart');
     } else {
+      const userId = user.currentUser && user.currentUser._id;
+      const token = user.currentUser && user.currentUser.accessToken;
+      const data = {
+        _id: id,
+        quantity,
+        size,
+        color,
+      };
+      userId && addToCart(userId, data, token);
       dispatch(addProduct({ ...product, quantity, color, size }));
     }
   };
@@ -167,7 +166,12 @@ export const Product = () => {
             <Filter>
               <FilterTitle>Color</FilterTitle>
               {product.color?.map((c) => (
-                <FilterColor color={c} key={c} onClick={() => setColor(c)} />
+                <FilterColor
+                  active={c === color}
+                  color={c}
+                  key={c}
+                  onClick={() => setColor(c)}
+                />
               ))}
             </Filter>
             <Filter>

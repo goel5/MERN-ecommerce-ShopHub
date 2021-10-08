@@ -1,7 +1,9 @@
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { FavoriteBorderOutlined, SearchOutlined } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
 const Info = styled.div`
   opacity: 0;
   position: absolute;
@@ -60,22 +62,24 @@ const Icon = styled.div`
   }
 `;
 export const Product = ({ item }) => {
+  const history = useHistory();
   return (
-    <Container>
+    <Container onClick={() => history.push(`/product/${item._id}`)}>
       <Circle />
       <Image src={item.img} />
       <Info>
-        <Icon>
+        {/* <Icon>{
+          }
           <ShoppingCartOutlinedIcon />
-        </Icon>
+        </Icon> */}
         <Icon>
           <Link to={`/product/${item._id}`}>
             <SearchOutlined />
           </Link>
         </Icon>
-        <Icon>
+        {/* <Icon>
           <FavoriteBorderOutlined />
-        </Icon>
+        </Icon> */}
       </Info>
     </Container>
   );

@@ -1,6 +1,3 @@
-// import { useEffect } from 'react';
-// import { useLocation } from 'react-router';
-// import { userRequest } from '../requestMethods';
 import { Link } from 'react-router-dom';
 export const Success = () => {
   // const location = useLocation();

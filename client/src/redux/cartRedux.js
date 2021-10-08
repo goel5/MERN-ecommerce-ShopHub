@@ -8,6 +8,11 @@ const cartSlice = createSlice({
     total: 0,
   },
   reducers: {
+    updateCart: (state, action) => {
+      state.quantity = action.payload.quantity;
+      state.products = action.payload.products;
+      state.total = action.payload.total;
+    },
     addProduct: (state, action) => {
       state.quantity += 1;
       state.products.push(action.payload);
@@ -20,16 +25,27 @@ const cartSlice = createSlice({
     },
     updateProduct: (state, action) => {
       console.log('update', action.payload);
+
       //id, operation
       if (action.payload.operation === 'inc') {
         state.total += action.payload.price;
-        state.products.find((product) => product._id === action.payload._id)
-          .quantity++;
+        state.products.find(
+          (product) => product._id === action.payload.productId
+        ).quantity++;
       } else {
         state.total -= action.payload.price;
-        state.products.find((product) => product._id === action.payload._id)
-          .quantity--;
+        state.products.find(
+          (product) => product._id === action.payload.productId
+        ).quantity--;
       }
+      // setTimeout(() => {
+      //   action.payload.userId &&
+      //     setUserCart(
+      //       action.payload.userId,
+      //       state.products,
+      //       action.payload.token
+      //     );
+      // }, 1000);
     },
     removeProduct: (state, action) => {
       state.quantity -= 1;
@@ -42,6 +58,11 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addProduct, clearCart, updateProduct, removeProduct } =
-  cartSlice.actions;
+export const {
+  addProduct,
+  clearCart,
+  updateProduct,
+  removeProduct,
+  updateCart,
+} = cartSlice.actions;
 export default cartSlice.reducer;

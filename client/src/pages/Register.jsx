@@ -57,15 +57,18 @@ const Button = styled.button`
   cursor: pointer;
 `;
 export const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('test1');
+  const [email, setEmail] = useState('fvag@gmail.com');
+  const [password, setPassword] = useState('123456');
+  // const [username, setUsername] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const history = useHistory;
   const handleClick = async (e) => {
     e.preventDefault();
     const config = {
-      header: {
+      headers: {
         'Content-Type': 'application/json',
       },
     };
@@ -79,8 +82,28 @@ export const Register = () => {
         },
         config
       );
-      console.log(data);
       await login(dispatch, { username, password });
+      console.log('njkfv', data.data._id);
+      setTimeout(function () {
+        axios.post(
+          `/api/carts`,
+          {
+            userId: data.data._id,
+            products: [],
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              token: `Bearer ${
+                JSON.parse(
+                  JSON.parse(localStorage.getItem('persist:root')).user
+                ).currentUser.accessToken
+              }`,
+            },
+          }
+        );
+      }, 500);
+
       history.push('/');
     } catch (err) {}
     // login(dispatch, { username, password });

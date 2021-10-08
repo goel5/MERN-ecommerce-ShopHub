@@ -6,6 +6,8 @@ import { Link, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { logout } from '../redux/apiCalls';
 import { clearCart } from '../redux/cartRedux';
+import { clearOrders } from '../redux/orderRedux';
+import { userRequest } from '../requestMethods';
 import { mobile } from '../responsive';
 const Container = styled.div`
   height: 60px;
@@ -72,14 +74,30 @@ const MenuItem = styled.div`
 `;
 export const Navbar = () => {
   const quantity = useSelector((state) => state.cart.quantity);
-  console.log(quantity);
+  // console.log(quantity);
   const user = useSelector((state) => state.user.currentUser);
-  console.log(user);
+  const cartProducts = useSelector((state) => state.cart.products);
+  // console.log('cartProducts', cartProducts);
+  // console.log(user);
   const history = useHistory();
   const dispatch = useDispatch();
   const logoutHandler = async () => {
+    // const userCart = { products: [] };
+    // if (cartProducts.length) {
+    //   await cartProducts.forEach((item) => {
+    //     userCart.products.push({
+    //       productId: item._id,
+    //       quantity: item.quantity,
+    //       size: item.size,
+    //       color: item.color,
+    //     });
+    //   });
+    //   await userRequest.put(`/carts/${user._id}`, userCart);
+    // }
+
     logout(dispatch);
     dispatch(clearCart());
+    dispatch(clearOrders());
     history.push('/');
   };
   useEffect(() => {}, [history]);
@@ -104,6 +122,11 @@ export const Navbar = () => {
           ) : (
             <Link to="/register" style={{ textDecoration: 'none' }}>
               <MenuItem>REGISTER</MenuItem>
+            </Link>
+          )}
+          {user && (
+            <Link to="/orders" style={{ textDecoration: 'none' }}>
+              <MenuItem>MY ORDERS</MenuItem>
             </Link>
           )}
           {user ? (
