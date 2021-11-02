@@ -7,7 +7,7 @@ const verifyToken = (req, res, next) => {
     jwt.verify(token, process.env.JWT_SEC, (err, user) => {
       // user:{id, isAdmin} from token
       //return either err or user
-      console.log('authHeader', authHeader);
+      // console.log('authHeader', authHeader);
       if (err) {
         console.log(err);
         return res.status(401).json('Token is not valid!');
